@@ -20,15 +20,17 @@ def token_required(f):
         except:
             return jsonify({'message' : 'Token is invalid!'}), 403
 
-            return f(*args, **kwargs)
+        return f(*args, **kwargs)
+    return decorated
 
-@app.route('/desprotegido')
-def desprotegido():
-    return ''
+@app.route('/unprotected')
+@token_required
+def unprotected():
+    return jsonify({'message': 'Anyone can viwe this!'})
 
-@app.route('/protegido')
-def protegido():
-    return ''
+@app.route('/protected')
+def protected():
+    return jsonify({'message': 'This is only available for people with valid tokens.'})
 
 @app.route('/login')
 def login():
@@ -37,25 +39,9 @@ def login():
     if auth and auth.password == 'password':
         token = jwt.encode({'user' : auth.username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
 
-        return jsonify({'token' : token.decode('UTF-8')})
+        return jsonify({'token' : token})
 
     return make_response('Could verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
 
-if __name__ == '__name__':
+if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
