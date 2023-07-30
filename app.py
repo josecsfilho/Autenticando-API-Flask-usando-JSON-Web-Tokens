@@ -10,7 +10,7 @@ app.config['SECRET_KEY'] = 'thisisthesecretkey'
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.args.get('token')  # http://127.0.0.1:5000/route?token=
+        token = request.args.get('token')
 
         if not token:
             return jsonify({'message' : 'Token is missing!'}), 403
@@ -24,11 +24,11 @@ def token_required(f):
     return decorated
 
 @app.route('/unprotected')
-@token_required
 def unprotected():
     return jsonify({'message': 'Anyone can viwe this!'})
 
 @app.route('/protected')
+@token_required
 def protected():
     return jsonify({'message': 'This is only available for people with valid tokens.'})
 
@@ -37,7 +37,7 @@ def login():
     auth = request.authorization
 
     if auth and auth.password == 'password':
-        token = jwt.encode({'user' : auth.username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        token = jwt.encode({'user' : auth.username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=45)}, app.config['SECRET_KEY'])
 
         return jsonify({'token' : token})
 
